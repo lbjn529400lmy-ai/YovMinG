@@ -43,7 +43,7 @@
    <div id="cloud-register-pane" class="cloud-hidden"><h2>创建登录账号</h2><p>创建后可能需要前往邮箱完成验证。</p><form id="cloud-register-form"><label>邮箱</label><input id="cloud-register-email" type="email" required autocomplete="email"><label>密码（至少 6 位，建议更长）</label><input id="cloud-register-password" type="password" required minlength="6"><button class="btn primary" type="submit">注册账号</button></form><button class="link-btn" id="cloud-register-back">返回登录</button></div>
    <div id="cloud-config-pane" class="cloud-hidden"><h2>连接云端数据库</h2><p>一次配置 Supabase 项目地址和公钥。不得填写 service_role 私钥。</p>
      <form id="cloud-config-form"><label>Supabase Project URL</label><input id="cloud-config-url" type="url" placeholder="https://xxxxx.supabase.co" required><label>Publishable / anon key（公开访问密钥）</label><input id="cloud-config-key" type="text" required placeholder="sb_publishable_... 或 eyJ..."><button class="btn primary" type="submit">保存连接信息</button></form>
-     <div class="cloud-hint">需要先在 Supabase 执行随附的 <code>database.sql</code> 建表脚本，并配置邮箱登录。这里填写的是公开密钥，不是管理员密钥。配置保存在当前浏览器；正式上线可直接写入 HTML 的 CLOUD_BOOTSTRAP 常量，手机就不用重复填写。</div><button class="link-btn" id="cloud-config-back">返回登录</button></div>
+     <div class="cloud-hint">需要先在 Supabase 执行随附的 <code>database.sql</code> 建表脚本，并配置邮箱登录。这里填写的是公开密钥，不是管理员密钥。正常情况下会从 Vercel 自动读取配置；如暂时无法读取，可在这里手动填写作为回退。</div><button class="link-btn" id="cloud-config-back">返回登录</button></div>
    <div id="cloud-connecting-pane" class="cloud-hidden"><h2>正在读取云端账本</h2><p>验证登录并读取最新数据中……</p></div>
    <div class="cloud-error" id="cloud-error" role="alert"></div>
   </div>
@@ -155,9 +155,10 @@ const CLOUD_BOOTSTRAP={url:'',anonKey:''}; // 发布前可写入项目 URL 和�
 const CLOUD_CONFIG_KEY='business_desk_cloud_config_v2';
 const CLOUD_SESSION_KEY='business_desk_cloud_session_v2';
 const CLOUD_PENDING_KEY='business_desk_pending_v2';
-let cloud={config:null,session:null,revision:null,dirty:false,busy:false,blocked:false,timer:null,lastSync:null,connected:false,checking:false};
+let cloud={config:null,bootstrapConfig:null,session:null,revision:null,dirty:false,busy:false,blocked:false,timer:null,lastSync:null,connected:false,checking:false};
 function cloudSafeConfig(){try{return JSON.parse(localStorage.getItem(CLOUD_CONFIG_KEY)||'null')||null}catch(e){return null}}
-function cloudConfig(){const cfg=cloudSafeConfig();return (cfg&&cfg.url&&cfg.anonKey)?cfg:((CLOUD_BOOTSTRAP.url&&CLOUD_BOOTSTRAP.anonKey)?CLOUD_BOOTSTRAP:null)}
+function cloudConfig(){if(cloud.bootstrapConfig?.url&&cloud.bootstrapConfig?.anonKey)return cloud.bootstrapConfig;const cfg=cloudSafeConfig();return (cfg&&cfg.url&&cfg.anonKey)?cfg:((CLOUD_BOOTSTRAP.url&&CLOUD_BOOTSTRAP.anonKey)?CLOUD_BOOTSTRAP:null)}
+async function cloudLoadBootstrap(){try{const res=await fetch('/api/config',{headers:{Accept:'application/json'},cache:'no-store'});if(!res.ok)return null;const data=await res.json();if(!data?.url||!data?.anonKey)return null;return cloudValidateConfig(data.url,data.anonKey)}catch(e){return null}}
 function cloudReady(){return cloud.connected&&!!cloud.session?.access_token}
 function cloudPending(){try{return JSON.parse(localStorage.getItem(CLOUD_PENDING_KEY)||'null')}catch(e){return null}}
 function cloudPendingStore(dirty){if(!cloud.session?.user?.id)return;localStorage.setItem(CLOUD_PENDING_KEY,JSON.stringify({userId:cloud.session.user.id,revision:cloud.revision,dirty,updatedAt:new Date().toISOString()}))}
@@ -234,7 +235,7 @@ async function cloudLogout(){if(cloud.dirty){await cloudFlush().catch(()=>{});if
  try{await cloudRequest('/auth/v1/logout','POST',{},true)}catch(e){}cloud.session=null;cloud.revision=null;cloud.connected=false;cloud.dirty=false;cloud.blocked=false;
  sessionStorage.removeItem(CLOUD_SESSION_KEY);localStorage.removeItem(CLOUD_PENDING_KEY);db=EMPTY();await save();render();cloudStatus('未登录');cloudShowGate(true)
 }
-async function cloudStart(){cloud.config=cloudConfig();cloudShowGate(true);
+async function cloudStart(){cloud.bootstrapConfig=await cloudLoadBootstrap();cloud.config=cloudConfig();cloudShowGate(true);
  const s=sessionStorage.getItem(CLOUD_SESSION_KEY);if(s&&cloud.config){try{cloud.session=JSON.parse(s);await cloudInitialLoad();return}catch(e){cloud.session=null;sessionStorage.removeItem(CLOUD_SESSION_KEY);cloudShowGate(true);cloudError('自动登录未成功：'+e.message)}}
 }
 window.addEventListener('online',()=>{if(cloudReady()){cloudStatus('网络恢复，准备同步');if(cloud.dirty)cloudFlush().catch(()=>{});else cloudCheckRemote().catch(()=>{})}});

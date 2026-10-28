@@ -1,6 +1,0 @@
-# 在 Vercel 项目环境变量管理页设置以下项（不要把真实 SecretKey 写到公开文件或发给他人）
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_PUBLISHABLE_KEY=填入Supabase公开publishable_key
-TENCENT_SECRET_ID=在Vercel设置SecretId
-TENCENT_SECRET_KEY=在Vercel设置SecretKey
-TENCENT_REGION=ap-guangzhou

@@ -227,7 +227,7 @@ async function cloudCheckRemote(){if(!cloudReady()||cloud.busy||cloud.blocked||c
  try{const row=await cloudFetchRow();if(row&&row.revision>cloud.revision){db=sanitize(row.payload);cloud.revision=row.revision;await save();render();cloud.lastSync=Date.now();cloudPendingStore(false);cloudStatus('已同步 · 云端有新数据');toast('已接收其他设备的最新数据。')}else cloudStatus('已同步')}
  finally{cloud.checking=false}
 }
-function cloudConflictDialog(){openModal('<h2>云端数据出现版本冲突</h2><p>另一台设备先保存了新数据。为了避免客户欠款和订单被覆盖，本设备已暂停自动同步。请先导出当前备份，再决定使用哪份数据。</p><div class="note warning">“使用云端数据”会丢弃本机尚未上传的更改。“本机覆盖云端”会覆盖另一台设备的最近更改。建议先备份两端再操作。</div>',[
+function cloudConflictDialog(){openModal('<h2>云端数据出现版本冲突</h2><p>另一台设备先保存了新数据。为了避免客户账本和订单数据被覆盖，本设备已暂停自动同步。请先导出当前备份，再决定使用哪份数据。</p><div class="note warning">“使用云端数据”会丢弃本机尚未上传的更改。“本机覆盖云端”会覆盖另一台设备的最近更改。建议先备份两端再操作。</div>',[
  {label:'下载本机备份',fn:()=>backup()},
  {label:'使用云端数据',fn:()=>{closeModal();cloudResolve('remote').catch(e=>toast(e.message,true))}},
  {label:'本机覆盖云端',kind:'danger',fn:()=>{if(confirm('确定用本机数据覆盖云端？另一台设备的最新修改可能丢失。')){closeModal();cloudResolve('local').catch(e=>toast(e.message,true))}}}

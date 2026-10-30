@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="个人经营工作台">
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2462d5"/>
+      <stop offset=".48" stop-color="#103b8c"/>
+      <stop offset="1" stop-color="#081c3e"/>
+    </linearGradient>
+    <linearGradient id="parcel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff"/>
+      <stop offset="1" stop-color="#d7e5ff"/>
+    </linearGradient>
+    <linearGradient id="calculator" x1="0" y1="0" x2=".8" y2="1">
+      <stop offset="0" stop-color="#1c58bd"/>
+      <stop offset="1" stop-color="#092556"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#background)"/>
+  <path d="M11 21 29 13 47 21 29 29Z" fill="#f8fbff"/>
+  <path d="M11 21 29 29 29 50 11 42Z" fill="url(#parcel)"/>
+  <path d="M29 29 47 21 47 42 29 50Z" fill="#b7cbef"/>
+  <path d="m23 15.6 18 8-6 2.7-18-8Z" fill="#2583f7"/>
+  <path d="m21 32 6 2.7v3L21 35Z" fill="#7595ca"/>
+  <path d="m21 38 6 2.7v3L21 41Z" fill="#7595ca"/>
+  <rect x="33" y="29" width="24" height="27" rx="5.5" fill="url(#calculator)" stroke="#3d7ce7" stroke-width="1.2"/>
+  <rect x="37.5" y="33" width="15" height="5.3" rx="1.9" fill="#d9eaff"/>
+  <rect x="37.5" y="41.5" width="6.4" height="5.3" rx="1.8" fill="#3467ad"/>
+  <rect x="46.1" y="41.5" width="6.4" height="5.3" rx="1.8" fill="#3467ad"/>
+  <rect x="37.5" y="48.6" width="6.4" height="5.3" rx="1.8" fill="#3467ad"/>
+  <rect x="46.1" y="48.6" width="6.4" height="5.3" rx="1.8" fill="#1382ff"/>
+  <path d="M40.7 42.8v2.8m-1.4-1.4h2.8M47.6 44.15H51M39.4 49.7l2.6 2.7m0-2.7-2.6 2.7M47.7 50.7H51m-3.3 1.25H51" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="1.2"/>
+</svg>

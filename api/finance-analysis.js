@@ -107,7 +107,26 @@ module.exports = async function handler(req, res) {
     });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) {
-      return send(res, 502, { error: 'OpenAI 分析服务暂时不可用，请检查 API 账号和用量设置后重试。' });
+      const status = response.status;
+      const code = String(data?.error?.code || data?.error?.type || 'unknown').slice(0, 80);
+      const requestId = response.headers.get('x-request-id') || '';
+      const messages = {
+        400: 'OpenAI 拒绝了这份文件或请求格式，请确认文件未损坏且格式受支持。',
+        401: 'OpenAI API 密钥无效或未被当前部署读取，请检查 Vercel 的 OPENAI_API_KEY。',
+        403: '当前 OpenAI API 项目没有调用此模型的权限。',
+        404: '配置的 OpenAI 模型不可用，请检查 OPENAI_MODEL 或恢复默认模型。',
+        429: 'OpenAI API 额度不足或触发使用限制，请检查 API 账单与用量限额。',
+        500: 'OpenAI 服务暂时出错，请稍后重试。',
+        502: 'OpenAI 服务暂时出错，请稍后重试。',
+        503: 'OpenAI 服务暂时出错，请稍后重试。'
+      };
+      console.error('OpenAI finance analysis failed', { status, code, requestId });
+      return send(res, 502, {
+        error: messages[status] || 'OpenAI API 请求失败，请检查 API 设置后重试。',
+        openaiStatus: status,
+        errorCode: code,
+        requestId
+      });
     }
     const text = data.output_text || (Array.isArray(data.output)
       ? data.output.flatMap((item) => Array.isArray(item.content) ? item.content : [])

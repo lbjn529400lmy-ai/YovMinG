@@ -4,3 +4,7 @@ SUPABASE_PUBLISHABLE_KEY=填入Supabase公开publishable_key
 TENCENT_SECRET_ID=在Vercel设置SecretId
 TENCENT_SECRET_KEY=在Vercel设置SecretKey
 TENCENT_REGION=ap-guangzhou
+
+# 财务支出 AI 分析（仅配置在 Vercel 服务端；切勿写入网页或提交真实密钥）
+OPENAI_API_KEY=在 OpenAI API Platform 创建后填入 Vercel 环境变量
+OPENAI_MODEL=gpt-6-luna（可选；留空使用默认模型）

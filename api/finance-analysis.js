@@ -17,7 +17,7 @@ function safeSummary(value) {
   if (!value || typeof value !== 'object') return null;
   const amount = (v) => Number.isFinite(Number(v)) ? Math.round(Number(v) * 100) / 100 : 0;
   const monthly = Array.isArray(value.monthly) ? value.monthly
-    .filter((row) => row && /^\\d{4}-(0[1-9]|1[0-2])$/.test(String(row.month || '')))
+    .filter((row) => row && /^\d{4}-(0[1-9]|1[0-2])$/.test(String(row.month || '')))
     .slice(-120)
     .map((row) => ({
       month: String(row.month),
@@ -51,7 +51,7 @@ module.exports = async function handler(req, res) {
   if (!supabaseUrl || !supabaseKey) return send(res, 503, { error: '云端登录配置缺失，暂时无法验证账号。' });
 
   const authorization = String(req.headers.authorization || '');
-  if (!/^Bearer\\s+[^\\s]+$/i.test(authorization)) {
+  if (!/^Bearer\s+[^\s]+$/i.test(authorization)) {
     return send(res, 401, { error: '请先登录工作台。' });
   }
 
@@ -87,7 +87,7 @@ module.exports = async function handler(req, res) {
     '先列出文件覆盖期间、识别到的支出总额、按月与类别的主要汇总；然后指出较大/异常/重复或资料不足的项目，给出 3 条可执行观察。无法可靠读取的字段请明确说明，不要编造数值。',
     '若文件只有支出数据而没有完整收入、税务、应收或库存信息，请明确说明不能据此得出完整净利润或税务结论。金额只按文件中可确认的记录汇总。',
     '工作台发货月汇总（JSON，无客户姓名）：' + JSON.stringify(summary || { monthly: [], cumulative: null })
-  ].join('\\n\\n');
+  ].join('\n\n');
 
   try {
     const response = await fetch('https://api.openai.com/v1/responses', {
@@ -113,7 +113,7 @@ module.exports = async function handler(req, res) {
       ? data.output.flatMap((item) => Array.isArray(item.content) ? item.content : [])
         .filter((part) => part.type === 'output_text')
         .map((part) => part.text || '')
-        .join('\\n')
+        .join('\n')
       : '');
     if (!text) return send(res, 502, { error: '模型没有返回分析内容，请稍后重试。' });
     return send(res, 200, { analysis: String(text).slice(0, 24000) });
